@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("Recruiter") // Recruiter, HR Manager, Admin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Candidate {
+  id              String   @id @default(uuid())
+  referenceNumber String   @unique
+  fullName        String
+  email           String
+  phone           String
+  role            String
+  resumeUrl       String
+  status          String   @default("pending") // pending, processed, failed, under review, shortlisted, rejected, hired
+  
+  // Extracted Data (Stored as stringified JSON because SQLite doesn't support String[])
+  skills          String   @default("[]")
+  experienceYears Int      @default(0)
+  education       String   @default("[]")
+  jobHistory      String   @default("[]")
+  certifications  String   @default("[]")
+  languages       String   @default("[]")
+  summary         String   @default("")
+  fitScore        Int      @default(0)
+  
+  // Stored stringified array of floats: [0.012, -0.054...] for Semantic Search
+  embedding       String?  @default("[]")
+  
+  notes           CandidateNote[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CandidateNote {
+  id          String    @id @default(uuid())
+  content     String
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  authorId    String
+  createdAt   DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  entityId  String?
+  entityType String?
+  userId    String?
+  details   String?
+  createdAt DateTime @default(now())
+}
