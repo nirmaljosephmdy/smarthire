@@ -1,160 +1,116 @@
-# SmartHire Portal 🚀
+# 🧠 SmartHire: AI-Powered Candidate Assessment & Application Portal
 
-SmartHire is a next-generation, AI-powered recruitment platform designed to transform the hiring process. It allows candidates to submit their applications and resumes, while recruiters can securely log in to access an intelligent HR portal. The application leverages AI to automatically parse resumes, extract skills, generate semantic embeddings, and allow recruiters to perform natural language vector searches to find the perfect candidates instantly.
+SmartHire is a modern three-tier application designed to revolutionize recruitment. It allows candidates to apply for jobs and upload their resumes, while automatically passing their applications through a custom-built AI microservice. The AI extracts skills, timelines, summaries, and generates mathematical vector embeddings. 
 
----
+HR professionals can then explore the candidate pool using advanced **Natural Language Semantic Search** to find the absolute best semantic fit for any role, complete with a dynamic fit scoring system and candidate management pipeline.
 
-## 🏗️ System Architecture
-
-The application is built using a modern, scalable microservices architecture consisting of three core components:
-
-### 1. Frontend (Next.js)
-The public-facing applicant portal and the secure HR dashboard interface.
-- **Framework**: Next.js 14 (App Router)
-- **Styling**: Tailwind CSS v4, ShadCN UI, Framer Motion
-- **Features**: Candidate Application Flow, HR Dashboard, Semantic Search UI, Candidate Profile Viewer.
-- **Port**: `:3000`
-
-### 2. Backend API (NestJS)
-The core business logic, database management, and robust API gateway.
-- **Framework**: NestJS (TypeScript)
-- **Database**: SQLite (via Prisma ORM v5)
-- **Features**: Authentication, Application routing, AI Service Orchestration, Data Persistence.
-- **Port**: `:3003`
-
-### 3. AI Microservice (FastAPI)
-A Python service dedicated to computationally heavy AI tasks.
-- **Framework**: FastAPI (Python)
-- **Libraries**: `sentence-transformers`, `PyPDF2`
-- **Features**: Resume text extraction (PDF/DOCX), embedding generation, semantic similarity scoring, and fallback mocking.
-- **Port**: `:8000`
+🔗 **GitHub Repository:** [https://github.com/nirmaljosephmdy/smarthire](https://github.com/nirmaljosephmdy/smarthire)
 
 ---
 
-## 🛠️ Prerequisites
+## 🏗️ Architecture Stack
 
-Before you begin, ensure you have the following installed on your machine:
-- **Node.js** (v18 or higher)
-- **Python** (v3.9 or higher)
-- **Git**
+1. **Frontend (`/frontend`)**
+   - **Framework:** Next.js 14 (App Router)
+   - **Styling:** Tailwind CSS + Shadcn UI + Framer Motion
+   - **Features:** Public Apply form, Private HR Dashboard, Semantic Search, Profile View, Admin System Status, Pagination
 
-*Note: This application has been explicitly designed to be fully runnable locally without Docker or any paid cloud subscriptions.*
+2. **Backend (`/backend`)**
+   - **Framework:** NestJS (TypeScript)
+   - **Database:** SQLite via Prisma ORM (`dev.db`)
+   - **Features:** RESTful API, Integration & Syncing with AI Service, Cosine Similarity search, Candidate state management, Global Audit Logging.
 
----
-
-## 🚀 Getting Started
-
-To get the entire SmartHire platform running locally, you need to set up and start all three services. Open three separate terminal windows and follow the steps below.
-
-### Step 1: Start the AI Microservice
-The AI service is responsible for parsing resumes and generating embeddings.
-
-1. Open your first terminal and navigate to the AI service directory:
-   ```bash
-   cd ai-service
-   ```
-2. Set up a Python virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   
-   # On Windows:
-   .\venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-3. Install the required Python dependencies:
-   ```bash
-   pip install fastapi uvicorn pydantic sentence-transformers PyPDF2 python-docx
-   ```
-4. Start the FastAPI server server:
-   ```bash
-   uvicorn main:app --reload --port 8000
-   ```
-*(The AI service will now be running on `http://localhost:8000`)*
+3. **AI Microservice (`/ai-service`)**
+   - **Framework:** Python FastAPI
+   - **Core ML:** `sentence-transformers` (all-MiniLM-L6-v2, optimized for CPU limits)
+   - **NLP/Parsing:** `spaCy`, `pdfplumber`, `python-docx`
+   - **Features:** Resume Parsing (PDF/DOCX), Entity Extraction (Skills, Timeline, Education), Executive Summary Generation, Vector Embeddings for Semantic Search.
 
 ---
 
-### Step 2: Start the Backend (NestJS)
-The backend manages the database and serves as the intermediary handler.
+## ✨ Key Features & Capabilities Built
 
-1. Open your second terminal and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install the Node.js dependencies:
-   ```bash
-   npm install
-   ```
-3. Setup the SQLite database and run Prisma migrations:
-   ```bash
-   npx prisma generate
-   npx prisma migrate dev --name init
-   ```
-4. Start the NestJS development server:
-   ```bash
-   npm run start:dev
-   ```
-*(The Backend API will now be running on `http://localhost:3003`)*
+### 1. The Candidate Experience
+- Responsive, modern application form.
+- Direct resume file uploads utilizing standard Web Form APIs.
+- Instant submission validation with an integrated background queue mapping to the AI service.
 
----
+### 2. The AI Pipeline
+- Resumes are instantly forwarded to the Python pipeline.
+- Extracts explicit details (Education, Certifications, Job History, Skills).
+- Calculates years of experience and generates an "AI Executive Summary".
+- Creates an **embedding vector array** stored natively in the SQLite candidate record.
 
-### Step 3: Start the Frontend (Next.js)
-The frontend provides the user interfaces for candidates and HR admins.
+### 3. HR Semantic Search
+- **Natural Language Parsing**: "Senior React developer with 5+ years experience".
+- **Dynamic Fit Scoring**: Compares the query's vector embedding against all candidate embeddings in the DB using Cosine Similarity (`backend/src/search/search.service.ts`).
+- **Heuristic Filtering**: Parses "5+ years" and explicitly filters out junior applicants before calculating the nearest semantic neighbors.
+- **Client-Side Pagination**: Clean 10-result pages with "Showing X-Y of Z" counters and smart tracking.
 
-1. Open your third terminal and navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install the Node.js dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Next.js development server:
-   ```bash
-   npm run dev
-   ```
-*(The Frontend application will now be running on `http://localhost:3000`)*
+### 4. HR Operations & Audit
+- Fully-featured Candidate Profile page displaying extracted metrics safely.
+- **Pipeline Management**: Ability to move candidates from `Pending` -> `Processed` -> `Under Review` -> `Shortlisted` -> `Hired` -> `Rejected`.
+- **Private Notes**: HR can add timestamped internal notes on candidate profiles.
+- **Admin System Setup UI**: Displays real database logs, architectural statuses, and recent global audit trails.
+- Dedicated Database Seeders (`seed-candidates.js`) generating 50 diverse candidates spanning Frontend, Backend, ML, DevOps, and Data paradigms.
 
 ---
 
-## 🔑 Accessing the Application
+## 🚀 Running the App Locally
 
-Once all three services are running, you can access the platform in your browser.
+To test everything end-to-end, you need all 3 services running concurrently.
 
-- **Public Applicant Portal:** [http://localhost:3000](http://localhost:3000)
-- **HR Secured Portal Login:** [http://localhost:3000/hr/login](http://localhost:3000/hr/login)
+### The Local Dashboard Ports:
+* 🌐 **Frontend App:** [http://localhost:3000](http://localhost:3000)
+* 💼 **HR Login:** [http://localhost:3000/hr/login](http://localhost:3000/hr/login) *(admin@smarthire.com / admin123)*
+* ⚙️ **Backend API base:** `http://localhost:3001`
+* 🧠 **AI Microservice base:** `http://localhost:8000`
+* 🗄️ **Database UI (Prisma Studio):** [http://localhost:5555](http://localhost:5555)
 
-**Demo HR Credentials:**
-- **Email:** `admin@smarthire.com`
-- **Password:** `admin123`
+### Running Everything:
+
+**1. AI Microservice** *(Keep this running so the backend can generate embeddings)*
+```bash
+cd ai-service
+# Assuming you set up your venv and pip installed requirements.txt
+python -m uvicorn main:app --reload --port 8000
+```
+
+**2. Backend**
+```bash
+cd backend
+npm install
+npx prisma db push
+npm run start:dev
+```
+
+**3. Frontend**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Seeding Dummy Data (Crucial for Search Testing)
+If the database is empty, search won't work. We built a powerful seeder.
+```bash
+cd backend
+node seed-candidates.js
+```
+*(This triggers the AI microservice 50 times to generate real vector embeddings for diverse dummy candidates!)*
 
 ---
 
-## 🗄️ Database GUI (Prisma Studio)
-To easily view and edit all the data (Users, Candidates, Notes) directly in your browser, you can use the built-in database graphical interface.
+## ☁️ Deployment Guide
 
-1. Open a new terminal and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Start Prisma Studio:
-   ```bash
-   npx prisma studio
-   ```
-3. Open [http://localhost:5555](http://localhost:5555) in your web browser.
+SmartHire is configured to easily deploy to the cloud for free testing:
+- **Frontend** → Push to **Vercel**
+- **AI Microservice & Backend** → Push to **Railway** (SQLite requires persistent volumes).
 
----
+*Note: The `requirements.txt` inside `/ai-service` is deliberately optimized to use `torch==2.6.0+cpu` alongside the PyTorch CPU extra-index. This shrinks the resulting Docker image by ~2.5GB and comfortably sneaks the heavy ML model under Railway's 4GB free-tier container limits.*
 
-## ⚙️ Environment Variables (Zero-Config)
-This application was refactored designed to run fully locally out of the box. **You do NOT need to create a `.env` file.** 
-- **Database**: SQLite handles persistence locally in the backend directory without needing configuration.
-- **Microservices**: All services are pre-configured to automatically bind to standard development ports (3003, 3000, 8000).
-
----
-
-## 🧪 Testing the Flow
-
-1. **Apply:** Go to the public portal and submit an application with a PDF/DOCX resume file.
-2. **Process:** The Backend will automatically chunk the file and send it to the AI Microservice for processing, extracting the skills and storing them in the SQLite DB.
-3. **Review:** Log in to the HR Portal to view the dashboard metrics updating in real-time.
-4. **Search:** Navigate to "Semantic Search", search for skills like "Frontend React Developer", and view the beautifully styled candidate profiles!
+**Steps:**
+1. Connect Vercel & Railway to `https://github.com/nirmaljosephmdy/smarthire`.
+2. Add Railway volume to `/app/prisma` for SQLite persistence.
+3. Configure `AI_SERVICE_URL`, `JWT_SECRET`, and `PORT` on Railway.
+4. Configure `NEXT_PUBLIC_API_URL` on Vercel to ping Railway's backend URL.
